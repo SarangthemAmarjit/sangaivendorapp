@@ -132,17 +132,17 @@ class _MainScreenState extends State<MainScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: Icon(Icons.qr_code_scanner, size: 40),
             label: 'Scan',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assessment),
-            label: 'Report',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.confirmation_number),
-            label: 'Range',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.assessment),
+          //   label: 'Report',
+          // ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.confirmation_number),
+          //   label: 'Range',
+          // ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
