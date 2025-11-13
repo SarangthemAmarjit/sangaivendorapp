@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   get: ^4.7.2
   simple_barcode_scanner: ^0.4.0
+  pinput: ^5.0.2
 
 dev_dependencies:
   flutter_test:
