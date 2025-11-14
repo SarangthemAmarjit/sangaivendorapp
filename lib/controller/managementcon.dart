@@ -18,6 +18,9 @@ class Managementcontroller extends GetxController {
   bool _isloadingshopregister = false;
   bool get isloadingshopregister => _isloadingshopregister;
 
+  bool _isloadingforactivate = false;
+  bool get isloadingforactivate => _isloadingforactivate;
+
   bool _isticketvalided = false;
   bool get isticketvalided => _isticketvalided;
 
@@ -59,6 +62,12 @@ class Managementcontroller extends GetxController {
   String _scanedticketnum = '';
   String get scanticketnum => _scanedticketnum;
 
+  void activateTicket(){
+    updateofflineticket(id: _offlineticketModel!.offlineTicketId);
+    addpayment();
+    addticketdetails();
+  }
+
   void scanticket(BuildContext context) async {
     String? res = await SimpleBarcodeScanner.scanBarcode(
       context,
@@ -72,12 +81,10 @@ class Managementcontroller extends GetxController {
       cameraFace: CameraFace.back,
     );
     log(res!);
-    if (res != null) {
-      _scanedticketnum = res;
-      update();
-      getdatabybarcode(barcodenum: _scanedticketnum, context: context);
-      // updateticketassold();
-    }
+    _scanedticketnum = res;
+    update();
+    getdatabybarcode(barcodenum: _scanedticketnum, context: context);
+    // updateticketassold();
   }
 
   // Save data to local storage
@@ -350,8 +357,8 @@ class Managementcontroller extends GetxController {
   }
 
   updateofflineticket({required int id}) async {
-    //     _isloadingshopregister = true;
-    // update();
+    _isloadingforactivate = true;
+    update();
     try {
       final url = Uri.parse(
         '$baselocalapi/OfflineTicketsApi/$id',
@@ -418,8 +425,6 @@ class Managementcontroller extends GetxController {
       }
     } catch (e) {
       print('Exception: $e');
-
-      return e.toString();
     }
   }
 
@@ -448,16 +453,20 @@ class Managementcontroller extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('Add Payment Successful');
+        _isloadingforactivate = false;
+        update();
       } else {
+        _isloadingforactivate = false;
+
         update();
         print(
           'Add Payment Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
         );
       }
     } catch (e) {
+      _isloadingforactivate = false;
+      update();
       print('Exception: $e');
-
-      return e.toString();
     }
   }
 }

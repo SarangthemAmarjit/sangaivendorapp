@@ -3,17 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sangaivendorapp/config/cons.dart';
 import 'package:sangaivendorapp/controller/managementcon.dart';
-import 'package:sangaivendorapp/model/vendordata.dart';
 
 class ScanPage extends StatefulWidget {
-  final VendorData vendorData;
-  final Function(int, bool, bool) onTicketScanned;
-
-  const ScanPage({
-    super.key,
-    required this.vendorData,
-    required this.onTicketScanned,
-  });
+  const ScanPage({super.key});
 
   @override
   State<ScanPage> createState() => _ScanPageState();
@@ -102,168 +94,226 @@ class _ScanPageState extends State<ScanPage> {
         title: const Text('Scan Ticket'),
         backgroundColor: Colors.orange,
       ),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 251, 239, 233),
-              Color.fromARGB(255, 229, 248, 225),
-              Color.fromARGB(255, 223, 241, 247),
-            ],
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Card(
-            color: Colors.white,
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+      body: GetBuilder<Managementcontroller>(
+        builder: (_) {
+          return Container(
+            height: MediaQuery.of(context).size.height,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromARGB(255, 251, 239, 233),
+                  Color.fromARGB(255, 229, 248, 225),
+                  Color.fromARGB(255, 223, 241, 247),
+                ],
+              ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: mngcon.scanResult == null
-                  ? Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            mngcon.scanticket(context);
-                          },
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.orange.shade100,
-                                  Colors.red.shade100,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Colors.orange.shade300,
-                                width: 3,
-                                style: BorderStyle.solid,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Card(
+                color: Colors.white,
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: mngcon.scanResult == null
+                      ? Column(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                mngcon.scanticket(context);
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.orange.shade100,
+                                      Colors.red.shade100,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.orange.shade300,
+                                    width: 3,
+                                    style: BorderStyle.solid,
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.qr_code_scanner,
+                                      size: 100,
+                                      color: Colors.orange,
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'Scan Ticket',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.qr_code_scanner,
-                                  size: 100,
-                                  color: Colors.orange,
+                            const SizedBox(height: 24),
+                            const Text(
+                              'Position the QR code or barcode within the frame',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Color(0xFF718096)),
+                            ),
+                            const SizedBox(height: 24),
+                            TextField(
+                              controller: _ticketController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: 'Or enter ticket number manually',
+                                prefixIcon: const Icon(
+                                  Icons.confirmation_number,
                                 ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Scan Ticket',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: Colors.orange,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  mngcon.getdatabybarcode(
+                                    barcodenum: _ticketController.text,
+                                    context: context,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: buttonbgcolor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Verify Ticket',
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    color: Colors.white,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Position the QR code or barcode within the frame',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Color(0xFF718096)),
-                        ),
-                        const SizedBox(height: 24),
-                        TextField(
-                          controller: _ticketController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            hintText: 'Or enter ticket number manually',
-                            prefixIcon: const Icon(Icons.confirmation_number),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Colors.orange,
-                                width: 2,
                               ),
                             ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              mngcon.getdatabybarcode(
-                                barcodenum: _ticketController.text,
-                                context: context,
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: buttonbgcolor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Icon(
+                              mngcon.resultIcon,
+                              size: 100,
+                              color: mngcon.resultColor,
                             ),
-                            child: const Text(
-                              'Verify Ticket',
+                            const SizedBox(height: 16),
+                            Text(
+                              mngcon.scanResult!,
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                                fontSize: 28,
                                 fontWeight: FontWeight.bold,
+                                color: mngcon.resultColor,
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        Icon(
-                          mngcon.resultIcon,
-                          size: 100,
-                          color: mngcon.resultColor,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          mngcon.scanResult!,
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: mngcon.resultColor,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          mngcon.scanMessage!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF4A5568),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Show Activate/Cancel buttons if ticket is validated
-                        if (mngcon.showValidationButtons!)
-                          Column(
-                            children: [
+                            const SizedBox(height: 8),
+                            Text(
+                              mngcon.scanMessage!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF4A5568),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            // Show Activate/Cancel buttons if ticket is validated
+                            if (mngcon.showValidationButtons!)
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            mngcon.activateTicket();
+                                          },
+                                          icon: mngcon.isloadingforactivate
+                                              ? SizedBox()
+                                              : Icon(Icons.check),
+                                          label: mngcon.isloadingforactivate
+                                              ? SizedBox(
+                                                  height: 30,
+                                                  width: 30,
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                )
+                                              : Text('Activate'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {},
+                                          icon: const Icon(Icons.close),
+                                          label: const Text('Cancel'),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                              ),
+                            // Show Scan Next/Dashboard buttons for other states
+                            if (!mngcon.showValidationButtons!)
                               Row(
                                 children: [
                                   Expanded(
-                                    child: ElevatedButton.icon(
+                                    child: ElevatedButton(
                                       onPressed: () {},
-                                      icon: const Icon(Icons.check),
-                                      label: const Text('Activate'),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green,
-                                        foregroundColor: Colors.white,
+                                        backgroundColor: Colors.orange,
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 16,
                                         ),
@@ -273,19 +323,19 @@ class _ScanPageState extends State<ScanPage> {
                                           ),
                                         ),
                                       ),
+                                      child: const Text('Scan Next'),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.close),
-                                      label: const Text('Cancel'),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
+                                    child: OutlinedButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      style: OutlinedButton.styleFrom(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 16,
+                                        ),
+                                        side: const BorderSide(
+                                          color: Colors.orange,
                                         ),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
@@ -293,57 +343,18 @@ class _ScanPageState extends State<ScanPage> {
                                           ),
                                         ),
                                       ),
+                                      child: const Text('Dashboard'),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
-                            ],
-                          ),
-                        // Show Scan Next/Dashboard buttons for other states
-                        if (!mngcon.showValidationButtons!)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: const Text('Scan Next'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    side: const BorderSide(
-                                      color: Colors.orange,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: const Text('Dashboard'),
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
+                          ],
+                        ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

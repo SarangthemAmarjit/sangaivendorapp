@@ -79,7 +79,7 @@ class _MainScreenState extends State<MainScreen> {
         onNavigate: (index) => setState(() => _selectedIndex = index),
         onSync: _syncData,
       ),
-      ScanPage(vendorData: vendorData, onTicketScanned: _handleTicketScanned),
+      ScanPage(),
       // ReportPage(ticketData: ticketData, soldTickets: soldTickets),
       // TicketRangePage(vendorData: vendorData, ticketData: ticketData),
       ProfilePage(vendorData: vendorData),
