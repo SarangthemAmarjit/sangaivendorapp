@@ -6,6 +6,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:sangaivendorapp/config/cons.dart';
+import 'package:sangaivendorapp/controller/authcontroller.dart';
 import 'package:sangaivendorapp/model/offlineticketmodel.dart';
 import 'package:sangaivendorapp/model/userloginresmodel.dart';
 import 'package:sangaivendorapp/model/userresponsemodel.dart';
@@ -182,7 +183,7 @@ class Managementcontroller extends GetxController {
         print(
           'Login Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
         );
-        return 'Login Failed';
+        return 'Invalid username or Password';
       }
     } catch (e) {
       _isloadingshopregister = false;
@@ -237,6 +238,7 @@ class Managementcontroller extends GetxController {
             _resultColor = Colors.red;
             _resultIcon = Icons.warning;
             _showValidationButtons = false;
+            update();
           } else if (_offlineticketModel!.status == "Sold") {
             _scanResult = 'Ticket already sold';
             _isticketvalided = false;
@@ -244,6 +246,7 @@ class Managementcontroller extends GetxController {
             _resultColor = Colors.orange;
             _resultIcon = Icons.info;
             _showValidationButtons = false;
+            update();
           } else if (isTicketValid(_offlineticketModel!.ticketDate) &&
               _offlineticketModel!.status == "UnSold") {
             _isticketvalided = true;
@@ -253,6 +256,7 @@ class Managementcontroller extends GetxController {
             _resultIcon = Icons.verified;
             _showValidationButtons = true;
             _pendingTicketNo = int.parse(barcodenum);
+            update();
           }
         } else {
           _scanResult = 'Invalid Ticket';
@@ -262,6 +266,7 @@ class Managementcontroller extends GetxController {
           _resultColor = Colors.red;
           _resultIcon = Icons.error;
           _showValidationButtons = false;
+          update();
         }
         _isticketchecking = false;
         update();
@@ -342,5 +347,117 @@ class Managementcontroller extends GetxController {
         );
       },
     );
+  }
+
+  updateofflineticket({required int id}) async {
+    //     _isloadingshopregister = true;
+    // update();
+    try {
+      final url = Uri.parse(
+        '$baselocalapi/OfflineTicketsApi/$id',
+      ); // change endpoint if needed
+
+      final headers = {'Content-Type': 'application/json'};
+
+      final body = jsonEncode({
+        "offlineTicketId": id,
+        "barcode": _offlineticketModel!.barcode,
+        "ticketTypeId": _offlineticketModel!.ticketTypeId,
+        "ticketDate": _offlineticketModel!.ticketDate,
+        "price": _offlineticketModel!.price,
+        "status": "Sold",
+        "saleAt": DateTime.now().toIso8601String(),
+        "generateAt": "2025-11-14T12:16:14.974Z",
+      });
+
+      final response = await http.put(url, headers: headers, body: body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Updated Successful');
+      } else {
+        update();
+        print(
+          'Updated Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('Exception: $e');
+
+      return e.toString();
+    }
+  }
+
+  addpayment() async {
+    //     _isloadingshopregister = true;
+    // update();
+    try {
+      final url = Uri.parse(
+        '$baselocalapi/PaymentsApi',
+      ); // change endpoint if needed
+
+      final headers = {'Content-Type': 'application/json'};
+
+      final body = jsonEncode({
+        "ticketId": _offlineticketModel!.offlineTicketId,
+        "amount": _offlineticketModel!.price,
+        "paymentMethod": "cash",
+
+        "status": "Sold",
+        "paymentDate": DateTime.now().toIso8601String(),
+      });
+
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Add Payment Successful');
+      } else {
+        update();
+        print(
+          'Add Payment Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('Exception: $e');
+
+      return e.toString();
+    }
+  }
+
+  addticketdetails() async {
+    //     _isloadingshopregister = true;
+    // update();
+    try {
+      final url = Uri.parse(
+        '$baselocalapi/TicketsApi',
+      ); // change endpoint if needed
+
+      final headers = {'Content-Type': 'application/json'};
+
+      final body = jsonEncode({
+        "barcode": _offlineticketModel!.barcode,
+        "ticketTypeId": _offlineticketModel!.offlineTicketId,
+        "ticketDate": _offlineticketModel!.ticketDate,
+        "price": _offlineticketModel!.price,
+        "status": "Sold",
+        "activatedBy": Get.find<Authcontroller>().userid,
+        "activatedAt": DateTime.now().toIso8601String(),
+        // "usedAt": "2025-11-14T12:45:17.476Z",
+      });
+
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Add Payment Successful');
+      } else {
+        update();
+        print(
+          'Add Payment Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('Exception: $e');
+
+      return e.toString();
+    }
   }
 }
