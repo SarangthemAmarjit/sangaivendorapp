@@ -1,7 +1,8 @@
 // Profile Page
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sangaivendorapp/controller/authcontroller.dart';
 import 'package:sangaivendorapp/model/vendordata.dart';
-import 'package:sangaivendorapp/pages/loginpage.dart';
 import 'package:sangaivendorapp/pages/setting.dart';
 import 'package:sangaivendorapp/widget/profile.dart';
 
@@ -12,6 +13,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Authcontroller authcon = Get.put(Authcontroller());
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -118,12 +120,7 @@ class ProfilePage extends StatelessWidget {
                                 ),
                                 OutlinedButton(
                                   onPressed: () {
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                      MaterialPageRoute(
-                                        builder: (context) => const LoginPage(),
-                                      ),
-                                      (route) => false,
-                                    );
+                                    authcon.logout();
                                   },
                                   style: OutlinedButton.styleFrom(
                                     shape: RoundedRectangleBorder(

@@ -2,7 +2,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
+import 'package:sangaivendorapp/controller/managementcon.dart';
 import 'package:sangaivendorapp/pages/loginpage.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -14,7 +16,7 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _shopNameController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _boothIdController = TextEditingController();
@@ -47,35 +49,37 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
-  void _sendOtp() {
-  if(_formKey.currentState!.validate()){
-    if (_mobileController.text.length == 10) {
-      setState(() {
-        _otpSent = true;
-      });
-      _startTimer();
-      // Auto-focus on PIN input after OTP is sent
-      Future.delayed(const Duration(milliseconds: 100), () {
-        _pinFocusNode.requestFocus();
-      });
+  void _sendOtp({
+    required String fullname,
+    required String password,
+    required String mobilenum,
+  }) {
+    if (_formKey.currentState!.validate()) {
+      if (_mobileController.text.length == 10) {
+        setState(() {
+          _otpSent = true;
+        });
+        _startTimer();
+        // Auto-focus on PIN input after OTP is sent
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _pinFocusNode.requestFocus();
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('OTP sent successfully!'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid 10-digit mobile number'),
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('OTP sent successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter a valid 10-digit mobile number'),
+          ),
+        );
+      }
     }
-  }
-
-
   }
 
   void _register() {
@@ -125,26 +129,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  void _verifyOtp() {
-    if (_otpController.text == '123456') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid OTP. Try 123456 for demo')),
-      );
-    }
-  }
-
   @override
   void dispose() {
     _otpController.dispose();
     _pinFocusNode.dispose();
     _timer?.cancel();
 
-    _shopNameController.dispose();
+    _fullNameController.dispose();
     _passwordController.dispose();
     _mobileController.dispose();
 
@@ -153,6 +144,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
+    Managementcontroller mngcon = Get.put(Managementcontroller());
     // Pinput theme configuration
     final defaultPinTheme = PinTheme(
       width: 56,
@@ -215,7 +207,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  Image.asset('assets/images/msflogo.png', height: 150),
+                  SizedBox(height: 20),
+                  Image.asset('assets/images/logo.png', height: 150),
 
                   // Container(
                   //   width: 80,
@@ -271,7 +264,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                     ),
                                     const SizedBox(height: 20),
                                     TextFormField(
-                                      controller: _shopNameController,
+                                      controller: _fullNameController,
                                       decoration: InputDecoration(
                                         labelText: 'Full Name *',
                                         hintText: 'Enter your full name',
@@ -398,7 +391,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                       width: double.infinity,
                                       height: 50,
                                       child: ElevatedButton(
-                                        onPressed: _isLoading ? null : _sendOtp,
+                                        onPressed: _isLoading
+                                            ? null
+                                            : () {
+                                                _sendOtp(
+                                                  fullname:
+                                                      _fullNameController.text,
+                                                  mobilenum:
+                                                      _mobileController.text,
+                                                  password:
+                                                      _passwordController.text,
+                                                );
+                                              },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color.fromARGB(
                                             255,
@@ -484,9 +488,38 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                         width: 2,
                                         color: Colors.orange,
                                       ),
-                                      onCompleted: (pin) {
+                                      onCompleted: (pin) async {
                                         // Auto-verify when all digits are entered
-                                        _verifyOtp();
+                                        var res = await mngcon
+                                            .verifyOtpforregister(
+                                              fullname:
+                                                  _fullNameController.text,
+                                              pass: _passwordController.text,
+                                              number: _mobileController.text,
+                                              otp: _otpController.text,
+                                              context: context,
+                                            );
+                                        if (res !=
+                                            'Registration Successfully') {
+                                          setState(() {
+                                            _otpSent = false;
+                                            _otpController.clear();
+                                          });
+
+                                          mngcon.showCommonDialog(
+                                            context: context,
+                                            title: 'Error',
+                                            message: res,
+                                            isSuccess: false,
+                                          );
+                                        } else {
+                                          mngcon.showCommonDialog(
+                                            context: context,
+                                            title: 'Success',
+                                            message: res,
+                                            isSuccess: true,
+                                          );
+                                        }
                                       },
                                     ),
                                     const SizedBox(height: 24),
@@ -494,7 +527,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                       width: double.infinity,
                                       height: 50,
                                       child: ElevatedButton(
-                                        onPressed: _verifyOtp,
+                                        onPressed: () {
+                                          mngcon.verifyOtpforregister(
+                                            fullname: _fullNameController.text,
+                                            pass: _passwordController.text,
+                                            number: _mobileController.text,
+                                            otp: _otpController.text,
+                                            context: context,
+                                          );
+                                        },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color.fromARGB(
                                             255,

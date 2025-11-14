@@ -21,84 +21,78 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   final TextEditingController _ticketController = TextEditingController();
-  String? _scanResult;
-  String? _scanMessage;
-  Color? _resultColor;
-  IconData? _resultIcon;
-  bool _showValidationButtons = false;
-  int? _pendingTicketNo;
 
-  void _scanTicket() {
-    if (_ticketController.text.isEmpty) {
-      return;
-    }
+  // void _scanTicket() {
+  //   if (_ticketController.text.isEmpty) {
+  //     return;
+  //   }
 
-    int ticketNo = int.parse(_ticketController.text);
-    bool isInRange =
-        ticketNo >= widget.vendorData.rangeStart &&
-        ticketNo <= widget.vendorData.rangeEnd;
+  //   int ticketNo = int.parse(_ticketController.text);
+  //   bool isInRange =
+  //       ticketNo >= widget.vendorData.rangeStart &&
+  //       ticketNo <= widget.vendorData.rangeEnd;
 
-    // Simulate checking if already sold (you'd check against actual sold tickets)
-    bool alreadySold = ticketNo <= 1005 && ticketNo >= 1001;
+  //   // Simulate checking if already sold (you'd check against actual sold tickets)
+  //   bool alreadySold = ticketNo <= 1005 && ticketNo >= 1001;
 
-    setState(() {
-      if (!isInRange) {
-        _scanResult = 'Invalid Ticket';
-        _scanMessage =
-            'Ticket #$ticketNo is not in your assigned range\n(${widget.vendorData.rangeStart} - ${widget.vendorData.rangeEnd})';
-        _resultColor = Colors.red;
-        _resultIcon = Icons.cancel;
-        _showValidationButtons = false;
-      } else if (alreadySold) {
-        _scanResult = 'Already Sold';
-        _scanMessage = 'Ticket #$ticketNo was already sold';
-        _resultColor = Colors.orange;
-        _resultIcon = Icons.warning;
-        _showValidationButtons = false;
-      } else {
-        _scanResult = 'Ticket Validated';
-        _scanMessage = 'Ticket #$ticketNo is valid and ready to activate';
-        _resultColor = Colors.blue;
-        _resultIcon = Icons.verified;
-        _showValidationButtons = true;
-        _pendingTicketNo = ticketNo;
-      }
-    });
-  }
+  //   setState(() {
+  //     if (!isInRange) {
+  //       mngcon.scanResult = 'Invalid Ticket';
+  //       _scanMessage =
+  //           'Ticket #$ticketNo is not in your assigned range\n(${widget.vendorData.rangeStart} - ${widget.vendorData.rangeEnd})';
+  //       mngcon. = Colors.red;
+  //       _resultIcon = Icons.cancel;
+  //       _showValidationButtons = false;
+  //     } else if (alreadySold) {
+  //       mngcon.scanResult = 'Already Sold';
+  //       _scanMessage = 'Ticket #$ticketNo was already sold';
+  //       mngcon. = Colors.orange;
+  //       _resultIcon = Icons.warning;
+  //       _showValidationButtons = false;
+  //     } else {
+  //       mngcon.scanResult = 'Ticket Validated';
+  //       _scanMessage = 'Ticket #$ticketNo is valid and ready to activate';
+  //       mngcon. = Colors.blue;
+  //       _resultIcon = Icons.verified;
+  //       _showValidationButtons = true;
+  //       _pendingTicketNo = ticketNo;
+  //     }
+  //   });
+  // }
 
-  void _activateTicket() {
-    if (_pendingTicketNo != null) {
-      setState(() {
-        _scanResult = 'Success!';
-        _scanMessage = 'Ticket #$_pendingTicketNo marked as sold successfully';
-        _resultColor = Colors.green;
-        _resultIcon = Icons.check_circle;
-        _showValidationButtons = false;
-      });
-      widget.onTicketScanned(_pendingTicketNo!, true, false);
-    }
-  }
+  // void _activateTicket() {
+  //   if (_pendingTicketNo != null) {
+  //     setState(() {
+  //       mngcon.scanResult = 'Success!';
+  //       _scanMessage = 'Ticket #$_pendingTicketNo marked as sold successfully';
+  //       _resultColor = Colors.green;
+  //       _resultIcon = Icons.check_circle;
+  //       _showValidationButtons = false;
+  //     });
+  //     widget.onTicketScanned(_pendingTicketNo!, true, false);
+  //   }
+  // }
 
-  void _cancelTicket() {
-    setState(() {
-      _scanResult = 'Cancelled';
-      _scanMessage = 'Ticket #$_pendingTicketNo activation was cancelled';
-      _resultColor = Colors.grey;
-      _resultIcon = Icons.close;
-      _showValidationButtons = false;
-      _pendingTicketNo = null;
-    });
-  }
+  // void _cancelTicket() {
+  //   setState(() {
+  //     mngcon.scanResult = 'Cancelled';
+  //     _scanMessage = 'Ticket #$_pendingTicketNo activation was cancelled';
+  //     _resultColor = Colors.grey;
+  //     _resultIcon = Icons.close;
+  //     _showValidationButtons = false;
+  //     _pendingTicketNo = null;
+  //   });
+  // }
 
-  void _reset() {
-    setState(() {
-      _scanResult = null;
-      _scanMessage = null;
-      _ticketController.clear();
-      _showValidationButtons = false;
-      _pendingTicketNo = null;
-    });
-  }
+  // void _reset() {
+  //   setState(() {
+  //     mngcon.scanResult = null;
+  //     _scanMessage = null;
+  //     _ticketController.clear();
+  //     _showValidationButtons = false;
+  //     _pendingTicketNo = null;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +125,7 @@ class _ScanPageState extends State<ScanPage> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(24),
-              child: _scanResult == null
+              child: mngcon.scanResult == null
                   ? Column(
                       children: [
                         InkWell(
@@ -200,12 +194,18 @@ class _ScanPageState extends State<ScanPage> {
                             ),
                           ),
                         ),
+
                         const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: _scanTicket,
+                            onPressed: () {
+                              mngcon.getdatabybarcode(
+                                barcodenum: _ticketController.text,
+                                context: context,
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: buttonbgcolor,
                               shape: RoundedRectangleBorder(
@@ -226,19 +226,23 @@ class _ScanPageState extends State<ScanPage> {
                     )
                   : Column(
                       children: [
-                        Icon(_resultIcon, size: 100, color: _resultColor),
+                        Icon(
+                          mngcon.resultIcon,
+                          size: 100,
+                          color: mngcon.resultColor,
+                        ),
                         const SizedBox(height: 16),
                         Text(
-                          _scanResult!,
+                          mngcon.scanResult!,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: _resultColor,
+                            color: mngcon.resultColor,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _scanMessage!,
+                          mngcon.scanMessage!,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 16,
@@ -247,14 +251,14 @@ class _ScanPageState extends State<ScanPage> {
                         ),
                         const SizedBox(height: 24),
                         // Show Activate/Cancel buttons if ticket is validated
-                        if (_showValidationButtons)
+                        if (mngcon.showValidationButtons!)
                           Column(
                             children: [
                               Row(
                                 children: [
                                   Expanded(
                                     child: ElevatedButton.icon(
-                                      onPressed: _activateTicket,
+                                      onPressed: () {},
                                       icon: const Icon(Icons.check),
                                       label: const Text('Activate'),
                                       style: ElevatedButton.styleFrom(
@@ -274,7 +278,7 @@ class _ScanPageState extends State<ScanPage> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: ElevatedButton.icon(
-                                      onPressed: _cancelTicket,
+                                      onPressed: () {},
                                       icon: const Icon(Icons.close),
                                       label: const Text('Cancel'),
                                       style: ElevatedButton.styleFrom(
@@ -297,12 +301,12 @@ class _ScanPageState extends State<ScanPage> {
                             ],
                           ),
                         // Show Scan Next/Dashboard buttons for other states
-                        if (!_showValidationButtons)
+                        if (!mngcon.showValidationButtons!)
                           Row(
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: _reset,
+                                  onPressed: () {},
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.orange,
                                     padding: const EdgeInsets.symmetric(
