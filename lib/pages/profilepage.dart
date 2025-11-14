@@ -8,7 +8,7 @@ import 'package:sangaivendorapp/widget/profile.dart';
 class ProfilePage extends StatelessWidget {
   final VendorData vendorData;
 
-  const ProfilePage({Key? key, required this.vendorData}) : super(key: key);
+  const ProfilePage({super.key, required this.vendorData});
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,7 @@ class ProfilePage extends StatelessWidget {
                                   onPressed: () => Navigator.pop(context),
                                   child: const Text('Cancel'),
                                 ),
-                                ElevatedButton(
+                                OutlinedButton(
                                   onPressed: () {
                                     Navigator.of(context).pushAndRemoveUntil(
                                       MaterialPageRoute(
@@ -125,8 +125,12 @@ class ProfilePage extends StatelessWidget {
                                       (route) => false,
                                     );
                                   },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(color: Colors.red),
+                                      borderRadius:
+                                          BorderRadiusGeometry.circular(10),
+                                    ),
                                   ),
                                   child: const Text('Logout'),
                                 ),

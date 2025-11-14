@@ -2,9 +2,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
-import 'package:sangaivendorapp/pages/navigatepage.dart';
 import 'package:sangaivendorapp/pages/registrationpage.dart';
+import 'package:sangaivendorapp/routes/app_routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -97,10 +98,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _verifyOtp() {
     if (_otpController.text == '123456') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
+      Get.offAllNamed(AppRoutes.mainpage);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid OTP. Try 123456 for demo')),
@@ -183,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset('assets/images/logo.png', height: 150),
+                    Image.asset('assets/images/msflogo.png', height: 150),
                     const SizedBox(height: 15),
                     const Text(
                       'Sangai Festival',

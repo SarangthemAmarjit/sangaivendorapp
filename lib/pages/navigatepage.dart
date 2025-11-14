@@ -5,12 +5,10 @@ import 'package:sangaivendorapp/model/ticketdata.dart';
 import 'package:sangaivendorapp/model/vendordata.dart';
 import 'package:sangaivendorapp/pages/dashboard.dart';
 import 'package:sangaivendorapp/pages/profilepage.dart';
-import 'package:sangaivendorapp/pages/reportpage.dart';
 import 'package:sangaivendorapp/pages/scanpage.dart';
-import 'package:sangaivendorapp/pages/ticketrangepage.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -82,8 +80,8 @@ class _MainScreenState extends State<MainScreen> {
         onSync: _syncData,
       ),
       ScanPage(vendorData: vendorData, onTicketScanned: _handleTicketScanned),
-      ReportPage(ticketData: ticketData, soldTickets: soldTickets),
-      TicketRangePage(vendorData: vendorData, ticketData: ticketData),
+      // ReportPage(ticketData: ticketData, soldTickets: soldTickets),
+      // TicketRangePage(vendorData: vendorData, ticketData: ticketData),
       ProfilePage(vendorData: vendorData),
     ];
   }

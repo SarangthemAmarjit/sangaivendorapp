@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:sangaivendorapp/routes/app_bindings.dart';
 import 'package:sangaivendorapp/routes/app_pages.dart';
 
 void main() {
+    WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterNativeSplash.preserve(
+      widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   runApp(const SangaiVendorApp());
 }
 

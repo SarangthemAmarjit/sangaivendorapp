@@ -15,12 +15,12 @@ class RegistrationPage extends StatefulWidget {
 class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _shopNameController = TextEditingController();
-  final TextEditingController _ownerNameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _boothIdController = TextEditingController();
   final TextEditingController _rangeStartController = TextEditingController();
   final TextEditingController _rangeEndController = TextEditingController();
-
+  bool _obscurePassword = true;
   bool _isLoading = false;
 
   final TextEditingController _otpController = TextEditingController();
@@ -48,6 +48,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _sendOtp() {
+  if(_formKey.currentState!.validate()){
     if (_mobileController.text.length == 10) {
       setState(() {
         _otpSent = true;
@@ -72,6 +73,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
       );
     }
+  }
+
+
   }
 
   void _register() {
@@ -141,7 +145,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _timer?.cancel();
 
     _shopNameController.dispose();
-    _ownerNameController.dispose();
+    _passwordController.dispose();
     _mobileController.dispose();
 
     super.dispose();
@@ -211,7 +215,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  Image.asset('assets/images/logo.png', height: 150),
+                  Image.asset('assets/images/msflogo.png', height: 150),
 
                   // Container(
                   //   width: 80,
@@ -269,40 +273,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                     TextFormField(
                                       controller: _shopNameController,
                                       decoration: InputDecoration(
-                                        labelText: 'Shop Name *',
-                                        hintText: 'Enter your shop name',
-                                        prefixIcon: const Icon(
-                                          Icons.store,
-                                          color: Colors.orange,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Colors.orange,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter shop name';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    TextFormField(
-                                      controller: _ownerNameController,
-                                      decoration: InputDecoration(
-                                        labelText: 'Owner Name *',
-                                        hintText: 'Enter owner name',
+                                        labelText: 'Full Name *',
+                                        hintText: 'Enter your full name',
                                         prefixIcon: const Icon(
                                           Icons.person,
                                           color: Colors.orange,
@@ -324,11 +296,63 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return 'Please enter owner name';
+                                          return 'Please enter full name';
                                         }
                                         return null;
                                       },
                                     ),
+                                    const SizedBox(height: 16),
+
+                                    // declare this in your State class
+                                    TextFormField(
+                                      controller: _passwordController,
+                                      obscureText: _obscurePassword,
+                                      decoration: InputDecoration(
+                                        labelText: 'Password *',
+                                        hintText: 'Enter your password',
+                                        prefixIcon: const Icon(
+                                          Icons.lock,
+                                          color: Colors.orange,
+                                        ),
+                                        suffixIcon: IconButton(
+                                          icon: Icon(
+                                            _obscurePassword
+                                                ? Icons.visibility_off
+                                                : Icons.visibility,
+                                            color: Colors.orange,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _obscurePassword =
+                                                  !_obscurePassword;
+                                            });
+                                          },
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.orange,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your password';
+                                        } else if (value.length < 6) {
+                                          return 'Password must be at least 6 characters';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+
                                     const SizedBox(height: 16),
                                     TextFormField(
                                       controller: _mobileController,
