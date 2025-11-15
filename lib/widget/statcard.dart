@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class StatCard extends StatelessWidget {
@@ -38,18 +37,27 @@ class StatCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Color(0xFF718096),
-                          fontSize: 12,
+                      FittedBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                color: Color(0xFF718096),
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(width: 40),
+                            Icon(icon, size: 40, color: color.withOpacity(0.3)),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         value,
                         style: const TextStyle(
-                          fontSize: 28,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF2D3748),
                         ),
@@ -67,7 +75,6 @@ class StatCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(icon, size: 40, color: color.withOpacity(0.3)),
               ],
             ),
           ],

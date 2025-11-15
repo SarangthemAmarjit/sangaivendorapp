@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:sangaivendorapp/config/cons.dart';
@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class Managementcontroller extends GetxController {
+  final TextEditingController ticketController = TextEditingController();
   bool _isloadingshopregister = false;
   bool get isloadingshopregister => _isloadingshopregister;
 
@@ -50,26 +51,94 @@ class Managementcontroller extends GetxController {
   int? _pendingTicketNo;
   int? get pendingTicketNo => _pendingTicketNo;
 
+  bool _isactivation1completed = false;
+  bool get isactivation1completed => _isactivation1completed;
+  bool _isactivation2completed = false;
+  bool get isactivation2completed => _isactivation2completed;
+  bool _isactivation3completed = false;
+  bool get isactivation3completed => _isactivation3completed;
+
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    Future.delayed(
-      const Duration(milliseconds: 10),
-    ).whenComplete(() => FlutterNativeSplash.remove());
   }
 
   String _scanedticketnum = '';
   String get scanticketnum => _scanedticketnum;
 
-  void activateTicket(){
-    updateofflineticket(id: _offlineticketModel!.offlineTicketId);
-    addpayment();
-    addticketdetails();
+  void reset() {
+    _scanResult = null;
+    _scanMessage = null;
+
+    _showValidationButtons = false;
+    _pendingTicketNo = null;
+
+    _isticketvalided = false;
+
+    _resultColor = Colors.red;
+    _resultIcon = Icons.warning;
+    ticketController.clear();
+    update();
+  }
+
+  Future<void> activateTicket(BuildContext context) async {
+    await updateofflineticket(id: _offlineticketModel!.offlineTicketId);
+    await addpayment();
+    await addticketdetails();
+
+    if (_isactivation1completed &&
+        _isactivation2completed &&
+        isactivation3completed) {
+      reset();
+      showCommonDialog(
+        context: context,
+        title: 'Success',
+        message: 'Ticket Activated Successfully',
+        isSuccess: true,
+      );
+    } else {
+      showCommonDialog(
+        context: context,
+        title: 'Error',
+        message: 'Something Went Wrong Try Again',
+        isSuccess: false,
+      );
+    }
+  }
+
+  // Future<void> scanBarcodeNormal(BuildContext context) async {
+  //   String barcodeScanRes;
+  //   // Platform messages may fail, so we use a try/catch PlatformException.
+  //   try {
+  //     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+  //       '#ff6666',
+  //       'Cancel',
+  //       true,
+  //       ScanMode.BARCODE,
+  //     );
+  //     print(barcodeScanRes);
+  //   } on PlatformException {
+  //     barcodeScanRes = 'Failed to get platform version.';
+  //   }
+
+  //   // If the widget was removed from the tree while the asynchronous platform
+  //   // message was in flight, we want to discard the reply rather than calling
+  //   // setState to update our non-existent appearance.
+
+  //   _scanedticketnum = barcodeScanRes;
+  //   update();
+  //   getdatabybarcode(barcodenum: _scanedticketnum, context: context);
+  // }
+  bool containsSymbols(String input) {
+    final symbolRegex = RegExp(r'[^a-zA-Z0-9]');
+    return symbolRegex.hasMatch(input);
   }
 
   void scanticket(BuildContext context) async {
     String? res = await SimpleBarcodeScanner.scanBarcode(
+      scanType: ScanType.barcode,
+      scanFormat: ScanFormat.ONLY_BARCODE,
       context,
       barcodeAppBar: const BarcodeAppBar(
         centerTitle: false,
@@ -77,13 +146,24 @@ class Managementcontroller extends GetxController {
         backButtonIcon: Icon(Icons.arrow_back_ios),
       ),
       isShowFlashIcon: true,
-      delayMillis: 2000,
+      delayMillis: 100,
       cameraFace: CameraFace.back,
     );
-    log(res!);
-    _scanedticketnum = res;
+    log("Barcode result : $res!");
+    _scanedticketnum = res!;
     update();
-    getdatabybarcode(barcodenum: _scanedticketnum, context: context);
+
+    if (containsSymbols(res)) {
+      showCommonDialog(
+        context: context,
+        title: 'Scanned Error',
+        message: 'Scan again and keep the barcode inside the frame',
+        isSuccess: false,
+      );
+    } else {
+      getdatabybarcode(barcodenum: _scanedticketnum, context: context);
+    }
+
     // updateticketassold();
   }
 
@@ -204,17 +284,27 @@ class Managementcontroller extends GetxController {
   bool isTicketValid(DateTime ticketDate) {
     final now = DateTime.now();
 
-    // Check if the ticket date is today
-    bool isToday =
-        ticketDate.year == now.year &&
-        ticketDate.month == now.month &&
-        ticketDate.day == now.day;
+    // Normalize today date
+    final today = DateTime(now.year, now.month, now.day);
+    final ticketDay = DateTime(
+      ticketDate.year,
+      ticketDate.month,
+      ticketDate.day,
+    );
 
-    // Check if current time is before 8 PM
-    final cutoffTime = DateTime(now.year, now.month, now.day, 20, 0); // 8:00 PM
-    bool isBefore8PM = now.isBefore(cutoffTime);
+    if (ticketDay.isAfter(today)) {
+      // Future date → always valid
+      return true;
+    }
 
-    return isToday && isBefore8PM;
+    if (ticketDay.isAtSameMomentAs(today)) {
+      // Today → check before 8 PM
+      final cutoffTime = DateTime(now.year, now.month, now.day, 20, 0);
+      return now.isBefore(cutoffTime);
+    }
+
+    // Past date → invalid
+    return false;
   }
 
   getdatabybarcode({
@@ -240,7 +330,7 @@ class Managementcontroller extends GetxController {
           if (!isTicketValid(_offlineticketModel!.ticketDate)) {
             _scanResult = 'Ticket Expired';
             _isticketvalided = false;
-            _ticketcheckresult =
+            _scanMessage =
                 "Ticket #$barcodenum has expired and cannot be activated";
             _resultColor = Colors.red;
             _resultIcon = Icons.warning;
@@ -249,7 +339,7 @@ class Managementcontroller extends GetxController {
           } else if (_offlineticketModel!.status == "Sold") {
             _scanResult = 'Ticket already sold';
             _isticketvalided = false;
-            _ticketcheckresult = "Ticket #$barcodenum has already been sold";
+            _scanMessage = "Ticket #$barcodenum has already been sold";
             _resultColor = Colors.orange;
             _resultIcon = Icons.info;
             _showValidationButtons = false;
@@ -268,7 +358,7 @@ class Managementcontroller extends GetxController {
         } else {
           _scanResult = 'Invalid Ticket';
           _isticketvalided = false;
-          _ticketcheckresult =
+          _scanMessage =
               "Ticket #$barcodenum is not recognized as a valid offline ticket.";
           _resultColor = Colors.red;
           _resultIcon = Icons.error;
@@ -291,7 +381,7 @@ class Managementcontroller extends GetxController {
     } catch (e) {
       _isticketchecking = false;
       update();
-      print('Exception: $e');
+      print('Exceptiondsd: $e');
     }
   }
 
@@ -356,7 +446,7 @@ class Managementcontroller extends GetxController {
     );
   }
 
-  updateofflineticket({required int id}) async {
+  Future updateofflineticket({required int id}) async {
     _isloadingforactivate = true;
     update();
     try {
@@ -370,31 +460,39 @@ class Managementcontroller extends GetxController {
         "offlineTicketId": id,
         "barcode": _offlineticketModel!.barcode,
         "ticketTypeId": _offlineticketModel!.ticketTypeId,
-        "ticketDate": _offlineticketModel!.ticketDate,
+        "ticketDate": _offlineticketModel!.ticketDate.toIso8601String(),
         "price": _offlineticketModel!.price,
         "status": "Sold",
         "saleAt": DateTime.now().toIso8601String(),
-        "generateAt": "2025-11-14T12:16:14.974Z",
+        "generateAt": _offlineticketModel!.generateAt.toIso8601String(),
       });
 
       final response = await http.put(url, headers: headers, body: body);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 204) {
+        _isactivation1completed = true;
+        update();
         print('Updated Successful');
       } else {
+        _isactivation1completed = false;
         update();
+
         print(
           'Updated Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
         );
       }
     } catch (e) {
+      _isactivation1completed = false;
+      update();
       print('Exception: $e');
 
       return e.toString();
     }
   }
 
-  addpayment() async {
+  Future addpayment() async {
     //     _isloadingshopregister = true;
     // update();
     try {
@@ -404,31 +502,38 @@ class Managementcontroller extends GetxController {
 
       final headers = {'Content-Type': 'application/json'};
 
-      final body = jsonEncode({
-        "ticketId": _offlineticketModel!.offlineTicketId,
-        "amount": _offlineticketModel!.price,
-        "paymentMethod": "cash",
+      log(_offlineticketModel!.offlineTicketId.toString());
 
-        "status": "Sold",
-        "paymentDate": DateTime.now().toIso8601String(),
+      final body = jsonEncode({
+        "offlineTicketId": _offlineticketModel!.offlineTicketId,
+        "amount": _offlineticketModel!.price,
+        "paymentMethod": "Cash",
+
+        "status": "Success",
       });
 
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        _isactivation2completed = true;
+        update();
         print('Add Payment Successful');
       } else {
+        _isactivation2completed = false;
         update();
+
         print(
           'Add Payment Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
         );
       }
     } catch (e) {
+      _isactivation2completed = false;
+      update();
       print('Exception: $e');
     }
   }
 
-  addticketdetails() async {
+  Future addticketdetails() async {
     //     _isloadingshopregister = true;
     // update();
     try {
@@ -441,9 +546,9 @@ class Managementcontroller extends GetxController {
       final body = jsonEncode({
         "barcode": _offlineticketModel!.barcode,
         "ticketTypeId": _offlineticketModel!.offlineTicketId,
-        "ticketDate": _offlineticketModel!.ticketDate,
+        "ticketDate": _offlineticketModel!.ticketDate.toIso8601String(),
         "price": _offlineticketModel!.price,
-        "status": "Sold",
+        "status": "Activated",
         "activatedBy": Get.find<Authcontroller>().userid,
         "activatedAt": DateTime.now().toIso8601String(),
         // "usedAt": "2025-11-14T12:45:17.476Z",
@@ -452,18 +557,23 @@ class Managementcontroller extends GetxController {
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Add Payment Successful');
+        _isactivation3completed = true;
+        print('Add TicketDetails Successful');
         _isloadingforactivate = false;
         update();
       } else {
+        _isactivation3completed = false;
+
         _isloadingforactivate = false;
 
         update();
         print(
-          'Add Payment Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
+          'Add TicketDetails Failed (${response.statusCode}): ${response.reasonPhrase} ${response.body}',
         );
       }
     } catch (e) {
+      _isactivation3completed = false;
+
       _isloadingforactivate = false;
       update();
       print('Exception: $e');

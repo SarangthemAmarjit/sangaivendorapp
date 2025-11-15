@@ -1,5 +1,7 @@
 // Main Screen with Navigation
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sangaivendorapp/controller/pagecontroller.dart';
 import 'package:sangaivendorapp/model/soldticket.dart';
 import 'package:sangaivendorapp/model/ticketdata.dart';
 import 'package:sangaivendorapp/model/vendordata.dart';
@@ -15,8 +17,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-
   final VendorData vendorData = VendorData(
     shopName: 'Imphal Cultural Crafts',
     ownerName: 'Rajesh Kumar',
@@ -76,7 +76,8 @@ class _MainScreenState extends State<MainScreen> {
         vendorData: vendorData,
         ticketData: ticketData,
         soldTickets: soldTickets,
-        onNavigate: (index) => setState(() => _selectedIndex = index),
+        onNavigate: (index) =>
+            Get.find<PageManagementcontroller>().setnavindex(ind: index),
         onSync: _syncData,
       ),
       ScanPage(),
@@ -119,31 +120,42 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner, size: 40),
-            label: 'Scan',
+    PageManagementcontroller pngcon = Get.put(PageManagementcontroller());
+    return GetBuilder<PageManagementcontroller>(
+      builder: (_) {
+        return Scaffold(
+          body: _pages[pngcon.selectedindex],
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: pngcon.selectedindex,
+            onTap: (index) => pngcon.setnavindex(ind: index),
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colors.orange,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Dashboard',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.qr_code_scanner, size: 40),
+                label: 'Scan',
+              ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.assessment),
+              //   label: 'Report',
+              // ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.confirmation_number),
+              //   label: 'Range',
+              // ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.assessment),
-          //   label: 'Report',
-          // ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.confirmation_number),
-          //   label: 'Range',
-          // ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
+        );
+      },
     );
   }
 }

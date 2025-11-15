@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
+import 'package:sangaivendorapp/controller/networkcon.dart';
 import 'package:sangaivendorapp/routes/app_bindings.dart';
 import 'package:sangaivendorapp/routes/app_pages.dart';
 
 void main() {
-    WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
+  Get.put(NetworkController());
   FlutterNativeSplash.preserve(
-      widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+    widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
+  );
   runApp(const SangaiVendorApp());
 }
 

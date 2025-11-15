@@ -19,9 +19,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
-  final TextEditingController _boothIdController = TextEditingController();
-  final TextEditingController _rangeStartController = TextEditingController();
-  final TextEditingController _rangeEndController = TextEditingController();
+
   bool _obscurePassword = true;
   bool _isLoading = false;
 
