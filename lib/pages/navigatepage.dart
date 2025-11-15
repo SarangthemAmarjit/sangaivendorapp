@@ -72,50 +72,12 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _pages = [
-      DashboardPage(
-        vendorData: vendorData,
-        ticketData: ticketData,
-        soldTickets: soldTickets,
-        onNavigate: (index) =>
-            Get.find<PageManagementcontroller>().setnavindex(ind: index),
-        onSync: _syncData,
-      ),
+      DashboardPage(),
       ScanPage(),
       // ReportPage(ticketData: ticketData, soldTickets: soldTickets),
       // TicketRangePage(vendorData: vendorData, ticketData: ticketData),
       ProfilePage(vendorData: vendorData),
     ];
-  }
-
-  void _syncData() {
-    setState(() {
-      for (var ticket in soldTickets) {
-        ticket.synced = true;
-      }
-      ticketData.lastSynced =
-          '${DateTime.now().day} Nov, ${TimeOfDay.now().format(context)}';
-    });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Data synced successfully!')));
-  }
-
-  void _handleTicketScanned(int ticketNo, bool isValid, bool alreadySold) {
-    if (isValid && !alreadySold) {
-      setState(() {
-        soldTickets.insert(
-          0,
-          SoldTicket(
-            ticketNo: ticketNo,
-            time: TimeOfDay.now().format(context),
-            date: '${DateTime.now().day} Nov ${DateTime.now().year}',
-            synced: false,
-          ),
-        );
-        ticketData.sold++;
-        ticketData.remaining--;
-      });
-    }
   }
 
   @override

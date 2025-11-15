@@ -66,7 +66,7 @@ class Authcontroller extends GetxController {
 
         final data = ticketSumaryModelFromJson(response.body);
         _ticketSummaryModel = data;
-        update();
+
         _isfetchingdata = false;
         update();
       } else {

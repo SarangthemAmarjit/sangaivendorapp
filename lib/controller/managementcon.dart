@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:sangaivendorapp/config/cons.dart';
 import 'package:sangaivendorapp/controller/authcontroller.dart';
+import 'package:sangaivendorapp/controller/pagecontroller.dart';
 import 'package:sangaivendorapp/model/offlineticketmodel.dart';
 import 'package:sangaivendorapp/model/userloginresmodel.dart';
 import 'package:sangaivendorapp/model/userresponsemodel.dart';
@@ -58,12 +59,6 @@ class Managementcontroller extends GetxController {
   bool _isactivation3completed = false;
   bool get isactivation3completed => _isactivation3completed;
 
-  @override
-  void onInit() {
-    // TODO: implement onInit
-    super.onInit();
-  }
-
   String _scanedticketnum = '';
   String get scanticketnum => _scanedticketnum;
 
@@ -91,6 +86,7 @@ class Managementcontroller extends GetxController {
         _isactivation2completed &&
         isactivation3completed) {
       reset();
+      Get.find<Authcontroller>().getData();
       showCommonDialog(
         context: context,
         title: 'Success',
@@ -206,12 +202,16 @@ class Managementcontroller extends GetxController {
         print('Registration Successful');
         print('Response: ${response.body}');
         var res = userresponsemodelFromJson(response.body);
+        Get.find<Authcontroller>().getsummarydetailsbyuserid(
+          userid: res.userId,
+        );
         // Optional: parse model
         // final data = registerModelFromJson(response.body);
         // _registerModel = data;
         _isloadingshopregister = false;
         update();
-        saveData(userid: res.userId, fullname: res.fullName);
+        await saveData(userid: res.userId, fullname: res.fullName);
+
         Get.offAllNamed(AppRoutes.mainpage);
         return 'Registration Successfully';
       } else if (response.statusCode == 400) {
@@ -260,6 +260,7 @@ class Managementcontroller extends GetxController {
         _isloadingshopregister = false;
         update();
         saveData(userid: res.userId, fullname: res.fullName);
+        Get.find<PageManagementcontroller>().setnavindex(ind: 0);
         Get.offAllNamed(AppRoutes.mainpage);
         return 'Login Successfully';
       } else if (response.statusCode == 400) {

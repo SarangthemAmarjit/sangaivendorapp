@@ -100,6 +100,8 @@ class ProfilePage extends StatelessWidget {
                                     OutlinedButton(
                                       onPressed: () {
                                         authcon.logout();
+                                        // Get.find<PageManagementcontroller>()
+                                        //     .setnavindex(ind: 0);
                                       },
                                       style: OutlinedButton.styleFrom(
                                         shape: RoundedRectangleBorder(

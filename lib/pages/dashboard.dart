@@ -2,72 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sangaivendorapp/controller/authcontroller.dart';
-import 'package:sangaivendorapp/model/soldticket.dart';
-import 'package:sangaivendorapp/model/ticketdata.dart';
-import 'package:sangaivendorapp/model/vendordata.dart';
 import 'package:sangaivendorapp/widget/statcard.dart';
 
 class DashboardPage extends StatelessWidget {
-  final VendorData vendorData;
-  final TicketData ticketData;
-  final List<SoldTicket> soldTickets;
-  final Function(int) onNavigate;
-  final VoidCallback onSync;
-
-  const DashboardPage({
-    Key? key,
-    required this.vendorData,
-    required this.ticketData,
-    required this.soldTickets,
-    required this.onNavigate,
-    required this.onSync,
-  }) : super(key: key);
-
-  // Calculate today's statistics
-  Map<String, dynamic> _getTodayStats() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    final todayTickets = soldTickets.where((ticket) {
-      final ticketDate = DateTime.now();
-      final ticketDay = DateTime(
-        ticketDate.year,
-        ticketDate.month,
-        ticketDate.day,
-      );
-      return ticketDay.isAtSameMomentAs(today);
-    }).toList();
-    double totalBudget = soldTickets.fold(0.0, (sum, ticket) => sum + (50));
-
-    // int generalCount = todayTickets.where((t) => t.ticketType.toLowerCase() == 'general').length;
-    // int studentCount = todayTickets.where((t) => t.ticketType.toLowerCase() == 'student').length;
-
-    return {'total': 99, 'budget': totalBudget, 'general': 43, 'student': 56};
-  }
-
-  // Calculate overall statistics
-  Map<String, dynamic> _getOverallStats() {
-    int generalCount = 43;
-    int studentCount = 56;
-    int totalActivations = soldTickets.length;
-
-    // Calculate total budget (assuming each ticket has an amount field)
-    double totalBudget = soldTickets.fold(0.0, (sum, ticket) => sum + (50));
-
-    return {
-      'activations': totalActivations,
-      'budget': totalBudget,
-      'general': generalCount,
-      'student': studentCount,
-    };
-  }
+  const DashboardPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    int unsyncedCount = soldTickets.where((t) => !t.synced).length;
-    final todayStats = _getTodayStats();
-    final overallStats = _getOverallStats();
-    Authcontroller auth = Get.put(Authcontroller());
+    Authcontroller auth = Get.find<Authcontroller>();
     return GetBuilder<Authcontroller>(
       builder: (_) {
         return auth.isfetchingdata
